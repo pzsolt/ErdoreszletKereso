@@ -1,0 +1,47 @@
+# This file contains metadata for your plugin.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=Erdőrészlet Kereső
+qgisMinimumVersion=3.0
+description=Erdőrészlet réteg elemei közötti keresés támogatása
+version=0.2
+author=Pataki Zsolt, Ipoly Erdő Zrt.
+email=pzs.vac@gmail.com
+
+about=A kiválasztott erdőrészlet réteg elemeinek hierarchikus böngészését teszi lehető, a leszűrt elemeken történő léptetéssel. Az elemek szűrhetők település, erdőtag, erdőrészlet szinten. A szűrés alapja az 'AZOK' kód.
+
+tracker=http://bugs
+repository=http://repo
+# End of mandatory metadata
+
+# Recommended items:
+
+hasProcessingProvider=no
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=python
+
+homepage=http://homepage
+category=Plugins
+icon=icon.png
+# experimental flag
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
+# Since QGIS 3.8, a comma separated list of plugins to be installed
+# (or upgraded) can be specified.
+# Check the documentation for more information.
+# plugin_dependencies=
+
+Category of the plugin: Raster, Vector, Database or Web
+# category=Vector
+
+# If the plugin can run on QGIS Server.
+server=False
+
