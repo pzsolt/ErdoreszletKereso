@@ -1,0 +1,18 @@
+Erdőrészlet Kereső plugin
+
+A "Választható rétegek" lista az erdészeti azonosítóval (AZOK) rendelkező rétegeket kínálja fel.
+Válasszon "Aktív réteg"-et a lista elemei közül.
+Az "Aktív réteg" AZOK szerint sorbarendezett alakzatain léptethet oda-vissza.
+Az elemek (erdőrészletek) szűrhetők hierarchikusan: település, majd erdőtag, és erdőrészlet kód szerint.
+A beállított szűrési szintet vörös négyszögek jelzik.
+
+Gombok:
+Szűrés feloldás: a szűrési feltétel eltávolítása.
+AZOK másolás: az "Aktuális részlet" AZOK kódjának vágólapra másolása.
+NÉV másolás: az "Aktuális részlet" nevének vágólapra másolása.
+Alak kiemelés: az "Aktuális részlet" körvonalának kiemelése, ránagyítás.
+Kiemelés törlés: a kiemelt körvonal törlése.
+Beállítás: az alakzat kiemelése, annak színe, kitöltésének átlátszatlansága és vonalvastagsága adható meg.
+A mindig alkalmazott kiemelésnek nincs kitöltése, csak az "Alak kiemelése" gombbal létrehozottnak.
+
+Készítette: Pataki Zsolt, Ipoly Erdő Zrt. 2023.
