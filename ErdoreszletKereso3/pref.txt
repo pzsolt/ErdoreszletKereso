@@ -1,4 +1,0 @@
-Outline=True
-Outcolor=#8e2851
-Outwidth=6
-Opacity=34
