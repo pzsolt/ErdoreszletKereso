@@ -1,1 +1,1 @@
-# erdoreszletkereso
+# Erdőrészlet Kereső plugin
