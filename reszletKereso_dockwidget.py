@@ -487,6 +487,7 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.azoks.setCurrentIndex(self.azoks.currentIndex() - 1)
 
     def onPreferencesB(self):
+        self.onDeleteborderB()
         self.pref.show()
         # kiemelés mindig beállítása
         outlinePref = readPref('Outline', self.plugin_dir + '\pref.txt')
