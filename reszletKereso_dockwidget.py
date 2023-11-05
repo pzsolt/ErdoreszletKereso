@@ -88,6 +88,8 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.deletefilterB.setEnabled(False)
         self.copyB.setEnabled(False)
         self.copyN.setEnabled(False)
+        self.flashB.setEnabled(False)
+        self.deleteborderB.setEnabled(False)
 
         # Szűrőlista Tab elrejtése és a Névjegy feltöltése
         self.tabSzures.setTabVisible(1, False)
@@ -114,7 +116,14 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self._clipboard = QGuiApplication.clipboard()
 
     def nevjegyTartalom(self):
-        self.textNevjegy.append('''<h2>Erdőr&eacute;szlet Kereső plugin</h2> <p>A <span style="color: 
+        self.textNevjegy.append('''<h2>Erdőr&eacute;szlet Kereső plugin</h2> <p>A plugin c&eacute;lja az 
+        erdőr&eacute;szletek valamely szempontok szerint előzetesen l&eacute;trehozott (szűrt, 
+        &ouml;ssze&aacute;ll&iacute;tott, elmentett stb.) elemlist&aacute;in t&ouml;rt&eacute;nő m&oacute;dszeres 
+        v&eacute;gigl&eacute;pked&eacute;s. Esetleg egy szempont szerint szűrni azt ami az adott r&eacute;tegben van, 
+        illetve a n&eacute;ha t&ouml;bbezres elemlist&aacute;ban gyorsan megtal&aacute;lni azt az egyet, 
+        amire &eacute;pp sz&uuml;ks&eacute;g van. A szűr&eacute;s &eacute;s keres&eacute;s kulcsa az AZOK k&oacute;d, 
+        ami Magyarorsz&aacute;gon az erdőr&eacute;szlet azonos&iacute;t&aacute;s alap hivatkoz&aacute;sa.</p> 
+        <p><strong><em>V&aacute;laszt&oacute;mezők:</em></strong></p> <p>A <span style="color: 
         #800080;"><em>"V&aacute;laszthat&oacute; r&eacute;tegek</em></span> lista az erd&eacute;szeti 
         azonos&iacute;t&oacute;val (AZOK) rendelkező r&eacute;tegeket k&iacute;n&aacute;lja fel.<br 
         />V&aacute;lasszon <span style="color: #800080;"><em>"Akt&iacute;v r&eacute;teg"</em></span>-et a lista 
@@ -122,22 +131,26 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         AZOK szerint sorbarendezett alakzatain l&eacute;ptethet oda-vissza.<br />Az elemek (erdőr&eacute;szletek) 
         szűrhetők hierarchikusan: telep&uuml;l&eacute;s, majd erdőtag, &eacute;s erdőr&eacute;szlet k&oacute;d 
         szerint.<br />A be&aacute;ll&iacute;tott szűr&eacute;si szintet v&ouml;r&ouml;s n&eacute;gysz&ouml;gek 
-        jelzik.</p><p>Gombok:<br /><span style="text-decoration: underline;">Szűr&eacute;s felold&aacute;s:</span> a 
-        szűr&eacute;si felt&eacute;tel elt&aacute;vol&iacute;t&aacute;sa.<br /><span style="text-decoration: 
-        underline;">AZOK m&aacute;sol&aacute;s:</span> az <em><span style="color: #800080;">"Aktu&aacute;lis 
-        r&eacute;szlet"</span></em> AZOK k&oacute;dj&aacute;nak v&aacute;g&oacute;lapra m&aacute;sol&aacute;sa.<br 
-        /><span style="text-decoration: underline;">N&Eacute;V m&aacute;sol&aacute;s:</span> az <span style="color: 
-        #800080;"><em>"Aktu&aacute;lis r&eacute;szlet"</em></span> nev&eacute;nek v&aacute;g&oacute;lapra 
-        m&aacute;sol&aacute;sa.<br /><span style="text-decoration: underline;">Alak kiemel&eacute;s:</span> az 
-        <em><span style="color: #800080;">"Aktu&aacute;lis r&eacute;szlet"</span></em> k&ouml;rvonal&aacute;nak 
-        kiemel&eacute;se, r&aacute;nagy&iacute;t&aacute;s.<br /><span style="text-decoration: 
-        underline;">Kiemel&eacute;s t&ouml;rl&eacute;s:</span> a kiemelt k&ouml;rvonal t&ouml;rl&eacute;se.<br 
-        /><span style="text-decoration: underline;">Be&aacute;ll&iacute;t&aacute;s:</span> az alakzat 
-        kiemel&eacute;se, annak sz&iacute;ne, kit&ouml;lt&eacute;s&eacute;nek &aacute;tl&aacute;tszatlans&aacute;ga 
-        &eacute;s vonalvastags&aacute;ga adhat&oacute; meg.<br />A minden elemre alkalmazott kiemel&eacute;snek nincs 
-        kit&ouml;lt&eacute;se, csak az "Alak kiemel&eacute;se" gombbal l&eacute;trehozottnak.</p> 
-        <p>K&eacute;sz&iacute;tette: <a href="mailto:pzs.vac@gmail.com?subject=Erd%C5%91r%C3%A9szlet%20Keres%C5%91
-        ">Pataki Zsolt</a>, <a href="http://ipolyerdo.hu">Ipoly Erdő Zrt.</a> 2023.</p>''')
+        jelzik.</p> <p><strong><em>Gombok:</em></strong><br /><span style="text-decoration: underline;">Szűr&eacute;s 
+        felold&aacute;s:</span> a szűr&eacute;si felt&eacute;tel elt&aacute;vol&iacute;t&aacute;sa.<br /><span 
+        style="text-decoration: underline;">AZOK m&aacute;sol&aacute;s:</span> az <em><span style="color: 
+        #800080;">"Aktu&aacute;lis r&eacute;szlet"</span></em> AZOK k&oacute;dj&aacute;nak v&aacute;g&oacute;lapra 
+        m&aacute;sol&aacute;sa.<br /><span style="text-decoration: underline;">N&Eacute;V 
+        m&aacute;sol&aacute;s:</span> az <span style="color: #800080;"><em>"Aktu&aacute;lis 
+        r&eacute;szlet"</em></span> nev&eacute;nek v&aacute;g&oacute;lapra m&aacute;sol&aacute;sa.<br /><span 
+        style="text-decoration: underline;">Alak kiemel&eacute;s:</span> az <em><span style="color: 
+        #800080;">"Aktu&aacute;lis r&eacute;szlet"</span></em> k&ouml;rvonal&aacute;nak kiemel&eacute;se, 
+        r&aacute;nagy&iacute;t&aacute;s.<br /><span style="text-decoration: underline;">Kiemel&eacute;s 
+        t&ouml;rl&eacute;s:</span> a kiemelt k&ouml;rvonal t&ouml;rl&eacute;se.<br /><span style="text-decoration: 
+        underline;">Be&aacute;ll&iacute;t&aacute;s:</span> az alakzat kiemel&eacute;se, annak sz&iacute;ne, 
+        kit&ouml;lt&eacute;s&eacute;nek &aacute;tl&aacute;tszatlans&aacute;ga &eacute;s vonalvastags&aacute;ga 
+        adhat&oacute; meg.</p> <p><br />Az alakzatok kiemel&eacute;se a l&eacute;ptet&eacute;s sor&aacute;n mindig az 
+        aktu&aacute;lis r&eacute;szlet k&ouml;rvonal kiemel&eacute;s&eacute;t, illetve az "Alak kiemel&eacute;se" 
+        gombbal l&eacute;trehozott egyedi kiemel&eacute;st jelenti. Az egyedi kiemel&eacute;snek 
+        be&aacute;ll&iacute;that&oacute; 0-100% k&ouml;z&ouml;tti &eacute;rt&eacute;kű 
+        &aacute;tl&aacute;tszatlans&aacute;ga (opacit&aacute;sa) is.</p> <p>K&eacute;sz&iacute;tette: <a 
+        href="mailto:pzs.vac@gmail.com?subject=Erd%C5%91r%C3%A9szlet%20Keres%C5%91 ">Pataki Zsolt</a>, 
+        <a href="http://ipolyerdo.hu">Ipoly Erdő Zrt.</a> 2023.</p> <p>Verzi&oacute;: 0.3</p>''')
         self.textNevjegy.moveCursor(QTextCursor.Start)
 
     @property
@@ -264,6 +277,7 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.azoks.clear()
         self.activeLayerLine.setText(text)
         self.activeLayerLine.setStyleSheet("QLineEdit { background-color : black; color : yellow; }")
+        self.flashB.setEnabled(True)
 
     def helysegLista(self):
         #törlések a szűrés feloldás esetében szükségesek
@@ -449,6 +463,9 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                 self.rubber.setFillColor(fillcolor)
                                 self.rubber.setWidth(width)
                                 self.rubber.setToGeometry(ff.geometry(), layer)
+                                self.deleteborderB.setEnabled(True)
+                            else:
+                                self.deleteborderB.setEnabled(False)
 
                             self.canvas.setExtent(ff.geometry().boundingBox().buffered(ff.geometry().boundingBox().height()/5))
                             self.canvas.refresh()
@@ -461,7 +478,6 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             print('A keresett részlet nincs a rétegben!', self.azoks.itemText(index))
                             self.activeGeom = None
                             return
-
             self.setActiveAzok(self.azoks.itemText(index))
 
     def onNext(self):
@@ -499,6 +515,7 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.on_activeLayerLine_textChanged(self.activeLayer)
 
     def onDeleteborderB(self):
+        self.deleteborderB.setEnabled(False)
         self.rubber.reset()
         self.canvas.refresh()
 
@@ -532,6 +549,7 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         ff.geometry().boundingBox().buffered(ff.geometry().boundingBox().height() / 5))
                     self.canvas.refresh()
                     self.activeGeom = ff.geometry().asWkt()
+                    self.deleteborderB.setEnabled(True)
                 else:
                     print('A keresett részlet nincs a rétegben!', self.azoks.itemText(index))
                     self.activeGeom = None
