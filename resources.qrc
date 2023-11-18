@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/ErdoreszletKereso3" >
+        <file>reszletmutato.png</file>
+    </qresource>
+</RCC>
