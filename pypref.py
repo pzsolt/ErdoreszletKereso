@@ -8,13 +8,13 @@ from qgis.core import QgsProject
 def readPref(txt0, arg0='pref.txt'):
     """Visszaad egy megadott parméterhez tartozó értéket
        az arg0-ként megadott paraméter fájlból"""
-    print(txt0, arg0)
+    #print(txt0, arg0)
     if os.path.exists(arg0):
         with open(arg0) as f:
             for line in f:
                 linevals = line.split("=")
                 if linevals[0] == txt0:
-                    print("%s= %s" % (linevals[0], linevals[1].rstrip('\r\n')))
+                    #print("%s= %s" % (linevals[0], linevals[1].rstrip('\r\n')))
                     return linevals[1].rstrip('\r\n')
             return 'None1'
 

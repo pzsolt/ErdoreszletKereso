@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-
+import datetime
 import os, sys
 from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer
@@ -31,7 +31,8 @@ from qgis.core import QgsProject, QgsMapLayer, QgsVectorLayer
 import qgis.utils
 from .pypref import *
 from .reszletPref import PrefWidget
-
+import sqlite3
+import os
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'reszletKereso_dockwidget_base.ui'))
 
@@ -113,7 +114,70 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.pref = PrefWidget()
         self.h_color = QColor()
 
+        print('1. időbélyeg: ', datetime.datetime.now())
+        self.sqlforras = readPref('Codebase', self.plugin_dir + '\pref.txt')
+        print('Sqlforrás: ',self.sqlforras)
+        if self.sqlforras == '':
+            self.sqlforras = 'csv'
+
+        if self.sqlforras == 'mem':
+            # memória sqlite adatbázis
+            self.sqlconn = sqlite3.connect(':memory:')
+            self.sqlcursor = self.sqlconn.cursor()
+            self.vannaknevek = self.memoriaDB(self.sqlconn, self.sqlcursor)
+            print('memória adatbázis: ', self.vannaknevek)
+
+        elif self.sqlforras == 'sdb':
+            # fájl sqlite adatbázis
+            if os.path.exists(self.plugin_dir + '/dict/erdoszotar.db'):
+                self.sqlconn = sqlite3.connect(self.plugin_dir + '/dict/erdoszotar.db')
+                self.sqlcursor = self.sqlconn.cursor()
+                print('fájl adatbázis: ', True)
+            else:
+                print('fájl adatbázis: ', False)
+
         self._clipboard = QGuiApplication.clipboard()
+
+    def memoriaDB(self, sqlconn, sqlcursor):
+        # memória sqlite adatbázis feltöltése a csv fájlokból
+        if os.path.exists(self.plugin_dir + '/dict/helyseg.txt'):
+
+            # helyseg tábla létrehozása  - docstring """   """ megadásával
+            sqlcursor.execute("""CREATE TABLE helyseg ( id integer, kod varchar(4), nev varchar(100));""")
+            sqlconn.commit()
+            helyseg_adatok = []
+
+            with open(self.plugin_dir + '/dict/helyseg.txt', 'r') as helyseg_txt:
+                for helyseg in helyseg_txt:
+                    helyseg = helyseg.rstrip('\n')
+                    ertekek = helyseg.split(";")
+                    if ertekek[0] != 'id':
+                        helyseg_adatok.append((ertekek[0], ertekek[1], ertekek[2]))
+
+            sqlcursor.executemany("INSERT INTO helyseg VALUES (?,?,?)", helyseg_adatok)
+            sqlconn.commit()
+
+            # reszletkod tábla létrehozása  - docstring """   """ megadásával
+            sqlcursor.execute("""CREATE TABLE reszletkod ( id integer, reszletjel varchar(2), reszletkod varchar(2));""")
+            sqlconn.commit()
+            reszletkod_adatok = []
+
+            with open(self.plugin_dir + '/dict/reszletkod.txt', 'r') as reszletkod_txt:
+                for reszletsor in reszletkod_txt:
+                    reszletsor = reszletsor.rstrip('\n')
+                    ertekek = reszletsor.split(";")
+                    if ertekek[0] != 'id':
+                        reszletkod_adatok.append((ertekek[0], ertekek[1], ertekek[2]))
+
+            sqlcursor.executemany("INSERT INTO reszletkod VALUES (?,?,?)", reszletkod_adatok)
+            sqlconn.commit()
+
+            return True
+
+        else:
+            print('A helyseg.txt fájl nem elérhető a megfelelő helyen.', self.plugin_dir + 'helyseg.txt')
+            return False
+
 
     def nevjegyTartalom(self):
         self.textNevjegy.append('''<h2>Erdőr&eacute;szlet Kereső plugin</h2> <p>A plugin c&eacute;lja az 
@@ -218,19 +282,20 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 layerType = layer.type()
                 # print(layer.name(), layerType)
                 if layerType == QgsMapLayer.VectorLayer:
-                    print(layerType, layer.geometryType(), layer.name())
+                    #print(layerType, layer.geometryType(), layer.name())
                     if layer.geometryType() == 2:
-                        print(layer.name())
+                        #print(layer.name())
                         fields = layer.fields()
                         for field in fields:
                             if field.name() in ['azok','AZOK','Azok']:
-                                print(field.name(), field.typeName())
+                                #print(field.name(), field.typeName())
                                 if field.typeName() == 'String' or field.typeName() == 'TEXT' or field.typeName() == 'varchar':
                                     reszletLayers.append(layer.name())
             reszletLayers.sort()
             for r in reszletLayers:
                 self.changeLayerList(r, True)
             self.checkActiveLayer()
+            print('2. időbélyeg: ', datetime.datetime.now())
 
     def changeLayerList(self, layername, todo):
         # a teendő, ha True akkor hozzáadás, ha False akkor elvétel
@@ -262,6 +327,7 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     @pyqtSlot(str)
     def on_activeLayerLine_textChanged(self, text):
+        print('3. időbélyeg: ', datetime.datetime.now())
         self.activeLayer = text
         layers = QgsProject.instance().mapLayers().values()
         for layer in layers:
@@ -308,10 +374,20 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                 self.helysegkodok.append(hkod)
                 self.helysegkodok.sort()
                 # helységnevek kiolvasása
+
                 for h in self.helysegkodok:
-                    hnev = readPref(str(h), os.path.join(self.plugin_dir, 'kod_helynev.csv'))
-                    self.helysegek.append(hnev)
+                    if self.sqlforras == 'csv':
+                        # csv fájlból
+                        hnev = readPref(str(h), os.path.join(self.plugin_dir, 'kod_helynev.csv'))
+                        self.helysegek.append(hnev)
+                    else:
+                        # sqlite adatbázisból
+                        self.sqlcursor.execute("SELECT nev FROM helyseg WHERE kod = ?;",(h,))
+                        hnev = self.sqlcursor.fetchone()[0]
+                        self.helysegek.append(hnev)
+
                 self.helysegek.sort()
+                print('4. időbélyeg: ', datetime.datetime.now())
                 for hnev in self.helysegek:
                     if self.comboHelyseg.findText(hnev) == -1:
                         self.comboHelyseg.addItem(hnev)
@@ -331,7 +407,14 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.clearTagok()
         self.clearReszlet()
         self.activeHelyseg = text
-        self.activeHelysegKod = readPref(text, os.path.join(self.plugin_dir, 'helynev_kod.csv'))
+        if self.sqlforras == 'csv':
+            # csv fájlból
+            self.activeHelysegKod = readPref(text, os.path.join(self.plugin_dir, 'helynev_kod.csv'))
+        else:
+            # sqlite adatbázisból
+            self.sqlcursor.execute("SELECT kod FROM helyseg WHERE nev = ?;", (text,))
+            self.activeHelysegKod = self.sqlcursor.fetchone()[0]
+
         self.helysegTagok()
         self.checkHelyseg.setChecked(True)
         self.checkHelyseg.setStyleSheet("QCheckBox::indicator { background-color : red }")
@@ -413,10 +496,20 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         if not index is None and index != -1:
 
+            for h in self.helysegkodok:
+                if self.sqlforras == 'csv':
+                    # csv fájlból
+                    hnev = readPref(self.azoks.itemText(index)[:4], os.path.join(self.plugin_dir, 'kod_helynev.csv'))
+                    reszletjel = readPref(self.azoks.itemText(index)[7:9], os.path.join(self.plugin_dir, 'kod_reszletjel.csv'))
+                else:
+                    # sqlite adatbázisból
+                    self.sqlcursor.execute("SELECT nev FROM helyseg WHERE kod = ?;", (self.azoks.itemText(index)[:4],))
+                    hnev = self.sqlcursor.fetchone()[0]
+                    self.sqlcursor.execute("SELECT reszletjel FROM reszletkod WHERE reszletkod = ?;", (self.azoks.itemText(index)[7:9],))
+                    reszletjel = self.sqlcursor.fetchone()[0]
+
             # részlet felirat összeállítás
-            hnev = readPref(self.azoks.itemText(index)[:4], os.path.join(self.plugin_dir, 'kod_helynev.csv'))
             tag = str(int(self.azoks.itemText(index)[4:7]))
-            reszletjel = readPref(self.azoks.itemText(index)[7:9], os.path.join(self.plugin_dir, 'kod_reszletjel.csv'))
             if self.azoks.itemText(index)[9] == '0':
                 reszlet = reszletjel
             else:
@@ -471,8 +564,8 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             self.canvas.refresh()
 
                             self.activeGeom = ff.geometry().asWkt()
-                            print('dock: ', self.activeGeom)
-                            print(QgsGeometry.fromWkt(self.activeGeom).area())
+                            #print('dock: ', self.activeGeom)
+                            #print(QgsGeometry.fromWkt(self.activeGeom).area())
 
                         else:
                             print('A keresett részlet nincs a rétegben!', self.azoks.itemText(index))
@@ -552,7 +645,7 @@ class reszletKeresoDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     self.activeGeom = ff.geometry().asWkt()
                     self.deleteborderB.setEnabled(True)
                 else:
-                    print('A keresett részlet nincs a rétegben!', self.azoks.itemText(index))
+                    print('A keresett részlet nincs a rétegben!', ' (onFlashB)')
                     self.activeGeom = None
                     return
 
