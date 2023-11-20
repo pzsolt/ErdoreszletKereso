@@ -9,8 +9,7 @@ Választómezők:
 	A "Választható rétegek" lista az erdészeti azonosítóval (AZOK) rendelkező rétegeket kínálja fel.
 	Válasszon "Aktív réteg"-et a lista elemei közül.
 	Az "Aktív réteg" AZOK szerint sorbarendezett alakzatain léptethet oda-vissza.
-	Az elemek (erdőrészletek) szűrhetők hierarchikusan: település, majd erdőtag, és erdőrészlet kód szerint. 
- A beállított szűrési szintet vörös négyszögek jelzik.
+	Az elemek (erdőrészletek) szűrhetők hierarchikusan: település, majd erdőtag, és erdőrészlet kód szerint. A beállított szűrési szintet vörös négyszögek jelzik.
 
 Gombok:
 
